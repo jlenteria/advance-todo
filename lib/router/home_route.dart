@@ -9,7 +9,7 @@ part of 'router.dart';
     ),
     TypedStatefulShellBranch<DoneTodoBranchData>(
       routes: <TypedRoute<RouteData>>[
-        TypedGoRoute<DoneTodoRoute>(path: '/done-todo'),
+        TypedGoRoute<DoneTodoRoute>(path: '/completed'),
       ],
     ),
     TypedStatefulShellBranch<SchedulerBranchData>(
@@ -98,9 +98,9 @@ class DoneTodoRoute extends BaseRoute {
   const DoneTodoRoute() : super();
   @override
   Widget buildScreen(BuildContext context, GoRouterState state) =>
-      ChangeNotifierProvider<DoneTodoScreenViewModel>(
-          create: (_) => DoneTodoScreenViewModel(),
-          child: const DoneTodoScreen());
+      ChangeNotifierProvider<CompletedScreenViewModel>(
+          create: (_) => CompletedScreenViewModel(),
+          child: const CompletedScreen());
 }
 
 class SchedulerRoute extends BaseRoute {

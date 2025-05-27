@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names
 enum PriorityCategory {
-  HIGH('High'),
+  URGENT('Urgent'),
   NORMAL('Normal'),
   LOW('Low');
 

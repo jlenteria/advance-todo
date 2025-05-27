@@ -34,7 +34,9 @@ class HomeScreen extends StatelessWidget {
           bottom: 100,
           right: 20,
           child: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              context.push(const FormRoute().location);
+            },
             child: const Icon(Icons.add),
           ),
         ),

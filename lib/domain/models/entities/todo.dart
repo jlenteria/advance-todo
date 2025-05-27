@@ -1,31 +1,52 @@
-import 'package:advance_todo/data/enums/priority_category.dart';
+import 'package:advance_todo/domain/models/entities/check_list.dart';
 import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'todo.g.dart';
-
-@JsonSerializable()
 @HiveType(typeId: 0)
 class Todo {
   const Todo({
     required this.id,
     required this.title,
     required this.dueDate,
-    required this.progress,
-    this.priority,
+    this.completedAt,
+    this.isCompleted = false,
+    this.priority = 1, // normal
+    this.checkList,
   });
-
-  factory Todo.fromJson(Map<String, dynamic> json) => _$TodoFromJson(json);
+  
 
   @HiveField(0)
-  final String id;
+  final int id;
   @HiveField(1)
   final String title;
   @HiveField(2)
-  @JsonKey(name: 'due_date')
   final DateTime dueDate;
   @HiveField(3)
-  final PriorityCategory? priority;
+  final int priority;
   @HiveField(4)
-  final int progress;
+  final DateTime? completedAt;
+  @HiveField(5)
+  final List<CheckList>? checkList;
+  @HiveField(6)
+  final bool isCompleted;
+  
+  Todo copyWith({
+    int? id,
+    String? title,
+    DateTime? dueDate,
+    int? priority,
+    DateTime? completedAt,
+    bool? isCompleted,
+    List<CheckList>? checkList,
+  }) =>
+      Todo(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        dueDate: dueDate ?? this.dueDate,
+        priority: priority ?? this.priority,
+        completedAt: completedAt ?? this.completedAt,
+        isCompleted: isCompleted ?? this.isCompleted,
+        checkList: checkList ?? this.checkList,
+      );
+
 }

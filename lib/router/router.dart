@@ -1,8 +1,13 @@
 import 'package:advance_todo/core/constants/global/global_keys.dart';
+import 'package:advance_todo/domain/models/entities/todo.dart';
+import 'package:advance_todo/presentations/screens/completed/completed_screen.dart';
+import 'package:advance_todo/presentations/screens/completed/completed_screen_view_model.dart';
 import 'package:advance_todo/presentations/screens/dashboard/dashboard_screen.dart';
 import 'package:advance_todo/presentations/screens/dashboard/dashboard_screen_view_model.dart';
-import 'package:advance_todo/presentations/screens/done_todo/done_todo_screen.dart';
-import 'package:advance_todo/presentations/screens/done_todo/done_todo_screen_view_model.dart';
+import 'package:advance_todo/presentations/screens/detail/detail_screen.dart';
+import 'package:advance_todo/presentations/screens/detail/detail_screen_view_model.dart';
+import 'package:advance_todo/presentations/screens/form/form_screen.dart';
+import 'package:advance_todo/presentations/screens/form/form_screen_view_model.dart';
 import 'package:advance_todo/presentations/screens/scheduler/scheduler_screen.dart';
 import 'package:advance_todo/presentations/screens/scheduler/scheduler_screen_view_model.dart';
 import 'package:advance_todo/presentations/screens/settings/settings_screen.dart';
@@ -15,6 +20,8 @@ import "package:advance_todo/presentations/screens/home_screen_view_model.dart";
 import 'package:provider/provider.dart';
 
 part 'home_route.dart';
+part 'form_route.dart';
+part 'todo_detail_route.dart';
 part 'router.g.dart';
 
 typedef Builder = Widget Function(

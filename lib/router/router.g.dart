@@ -8,6 +8,8 @@ part of 'router.dart';
 
 List<RouteBase> get $appRoutes => [
       $homeShellRoute,
+      $formRoute,
+      $todoDetailRoute,
     ];
 
 RouteBase get $homeShellRoute => StatefulShellRouteData.$route(
@@ -28,7 +30,7 @@ RouteBase get $homeShellRoute => StatefulShellRouteData.$route(
           restorationScopeId: DoneTodoBranchData.$restorationScopeId,
           routes: [
             GoRouteData.$route(
-              path: '/done-todo',
+              path: '/completed',
               factory: $DoneTodoRouteExtension._fromState,
             ),
           ],
@@ -81,7 +83,7 @@ extension $DoneTodoRouteExtension on DoneTodoRoute {
   static DoneTodoRoute _fromState(GoRouterState state) => const DoneTodoRoute();
 
   String get location => GoRouteData.$location(
-        '/done-todo',
+        '/completed',
       );
 
   void go(BuildContext context) => context.go(location);
@@ -117,6 +119,51 @@ extension $SettingsRouteExtension on SettingsRoute {
 
   String get location => GoRouteData.$location(
         '/settings',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $formRoute => GoRouteData.$route(
+      path: '/form',
+      factory: $FormRouteExtension._fromState,
+    );
+
+extension $FormRouteExtension on FormRoute {
+  static FormRoute _fromState(GoRouterState state) => const FormRoute();
+
+  String get location => GoRouteData.$location(
+        '/form',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $todoDetailRoute => GoRouteData.$route(
+      path: '/todo-detail',
+      factory: $TodoDetailRouteExtension._fromState,
+    );
+
+extension $TodoDetailRouteExtension on TodoDetailRoute {
+  static TodoDetailRoute _fromState(GoRouterState state) =>
+      const TodoDetailRoute();
+
+  String get location => GoRouteData.$location(
+        '/todo-detail',
       );
 
   void go(BuildContext context) => context.go(location);

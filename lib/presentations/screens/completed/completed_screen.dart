@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class DoneTodoScreen extends StatelessWidget {
-  const DoneTodoScreen({super.key});
+class CompletedScreen extends StatelessWidget {
+  const CompletedScreen({super.key});
   @override
   Widget build(BuildContext context) {
     // TODO: implement build

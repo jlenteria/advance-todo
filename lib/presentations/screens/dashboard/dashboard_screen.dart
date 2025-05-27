@@ -1,79 +1,130 @@
 import 'package:advance_todo/core/themes/app_fonts.dart';
 import 'package:advance_todo/data/enums/priority_category.dart';
+import 'package:advance_todo/domain/models/entities/todo.dart';
+import 'package:advance_todo/presentations/screens/dashboard/dashboard_screen_view_model.dart';
+import 'package:advance_todo/presentations/widgets/app_background.dart';
+import 'package:advance_todo/presentations/widgets/custom_app_bar.dart';
+import 'package:advance_todo/presentations/widgets/custom_circular_progress_indicator.dart';
 import 'package:advance_todo/presentations/widgets/line_divider.dart';
+import 'package:advance_todo/router/router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('My Todos'),
+      body: AppBackground(
+        child: RefreshIndicator(
+          onRefresh: context.read<DashboardScreenViewModel>().init,
+          child: Column(
+            children: <Widget>[
+              const CustomAppBar(
+                title: 'My Todos',
+                hideBackButton: true,
+              ),
+              Consumer<DashboardScreenViewModel>(
+                builder: (_, DashboardScreenViewModel vm, __) {
+                  if (vm.isLoading) {
+                    return const Center(
+                        heightFactor: 10, child: CircularProgressIndicator());
+                  }
+                  if (vm.overdueTodos.isEmpty && vm.todayTodos.isEmpty && vm.upcomingTodos.isEmpty) {
+                    return Expanded(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'No todos yet',
+                          style: AppFonts.body16M(),
+                        ),
+                      ),
+                    );
+                  }
+                  return Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: CustomScrollView(
+                      slivers: [
+                        if (vm.overdueTodos.isEmpty && vm.todayTodos.isEmpty && vm.upcomingTodos.isEmpty)
+                          Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'No todos yet',
+                              style: AppFonts.body16M(),
+                            ),
+                          ),
+                        if (vm.overdueTodos.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: 25),
+                        ),
+                        if (vm.overdueTodos.isNotEmpty)
+                          SliverToBoxAdapter(
+                            child: _OverDueTodo(todos: vm.overdueTodos),
+                          ),
+                        if (vm.todayTodos.isNotEmpty)
+                          SliverToBoxAdapter(
+                            child: SizedBox(height: 25),
+                          ),
+                        if (vm.todayTodos.isNotEmpty)
+                          SliverToBoxAdapter(
+                            child: _TodayTodo(todos: vm.todayTodos),
+                          ),
+                        if (vm.upcomingTodos.isNotEmpty)
+                          SliverToBoxAdapter(
+                            child: SizedBox(height: 25),
+                          ),
+                        if (vm.upcomingTodos.isNotEmpty)
+                          SliverToBoxAdapter(
+                            child: _UpcomingTodo(todos: vm.upcomingTodos),
+                          ),
+                       
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: 120),
+                        ),
+                      ],
+                    ),
+                  ));
+                },
+              ),
+            ],
+          ),
+        ),
       ),
-      body: Center(
-          child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: const CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: SizedBox(height: 10),
-                  ),
-                  SliverToBoxAdapter(
-                    child: _OverDueTodo(),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(height: 25),
-                  ),
-                  SliverToBoxAdapter(
-                    child: _TodayTodo(),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(height: 25),
-                  ),
-                  SliverToBoxAdapter(
-                    child: _UpcomingTodo(),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(height: 80),
-                  ),
-                ],
-              ))),
     );
   }
 }
 
 class _OverDueTodo extends StatelessWidget {
-  const _OverDueTodo();
+  const _OverDueTodo({required this.todos});
+  final List<Todo> todos;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Overdue', style: AppFonts.body16M(color: Colors.red)),
+        Text('Overdue', style: AppFonts.body16SB(color: Colors.red)),
         const SizedBox(
           height: 10,
         ),
         const LineDivider(),
         const SizedBox(
-          height: 15,
+          height: 20,
         ),
-        const _TodoItem(
-          title: 'Learn Flutter',
-          date: 'Feb 28, 2024',
-          isOverDue: true,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        const _TodoItem(
-          title: 'Learn Flutter',
-          date: 'Feb 28, 2024',
-          isOverDue: true,
+        ListView.separated(
+          padding: EdgeInsets.zero,
+          itemCount: todos.length,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (_, int index) => _TodoItem(
+            todo: todos[index],
+            isOverDue: true,
+          ),
         ),
       ],
     );
@@ -81,62 +132,63 @@ class _OverDueTodo extends StatelessWidget {
 }
 
 class _TodayTodo extends StatelessWidget {
-  const _TodayTodo();
+  const _TodayTodo({required this.todos});
+  final List<Todo> todos;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Today', style: AppFonts.body16M()),
+        Text('Today', style: AppFonts.body16SB()),
         const SizedBox(
           height: 10,
         ),
         const LineDivider(),
         const SizedBox(
-          height: 15,
+          height: 20,
         ),
-        const _TodoItem(
-          title: 'Learn Flutter',
-          date: 'Feb 28, 2025',
-          priority: PriorityCategory.HIGH,
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        const _TodoItem(
-          title: 'Learn Flutter',
-          date: 'Feb 28, 2025',
-          priority: PriorityCategory.LOW
-        ),
+        ListView.separated(
+            padding: EdgeInsets.zero,
+            itemCount: todos.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (_, int index) => _TodoItem(
+              todo: todos[index],
+              isToday: true,
+            ))
       ],
     );
   }
 }
 
 class _UpcomingTodo extends StatelessWidget {
-  const _UpcomingTodo();
+  const _UpcomingTodo({required this.todos});
+  final List<Todo> todos;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Upcoming', style: AppFonts.body16M()),
+        Text('Upcoming', style: AppFonts.body16SB()),
         const SizedBox(
           height: 10,
         ),
         const LineDivider(),
         const SizedBox(
-          height: 15,
+          height: 20,
         ),
-        const _TodoItem(title: 'Learn Flutter Advanced', date: 'March 6, 2025'),
-        const SizedBox(
-          height: 10,
-        ),
-        const _TodoItem(
-          title: 'Learn Flutter Advanced 2',
-          date: 'March 7, 2025'
+        ListView.separated(
+          padding: EdgeInsets.zero,
+          itemCount: todos.length,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (_, int index) => _TodoItem(
+          todo: todos[index],
+          ),
         ),
       ],
     );
@@ -145,19 +197,30 @@ class _UpcomingTodo extends StatelessWidget {
 
 class _TodoItem extends StatelessWidget {
   const _TodoItem({
-    required this.title,
-    required this.date,
-    this.priority,
+    required this.todo,
     this.isOverDue = false,
+    this.isToday = false,
   });
-
-  final String title;
-  final String date;
-  final PriorityCategory? priority;
   final bool isOverDue;
+  final bool isToday;
+  final Todo todo;
 
   @override
   Widget build(BuildContext context) {
+    final String badgeText =
+        PriorityCategory.values[todo.priority] == PriorityCategory.URGENT
+            ? 'URGENT'
+            : PriorityCategory.values[todo.priority] == PriorityCategory.NORMAL
+                ? 'NORMAL'
+                : 'LOW';
+
+    final Color badgeColor =
+        PriorityCategory.values[todo.priority] == PriorityCategory.URGENT
+            ? Colors.red
+            : PriorityCategory.values[todo.priority] == PriorityCategory.NORMAL
+                ? Colors.blue
+                : Colors.grey;
+
     return Stack(
       children: <Widget>[
         CupertinoButton(
@@ -166,14 +229,23 @@ class _TodoItem extends StatelessWidget {
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: isOverDue ? Colors.red : Colors.grey, width: 0.5),
+              border: Border.all(
+                  color: isOverDue ? Colors.red : Colors.grey, width: 0.5),
               borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
             child: Row(
               children: <Widget>[
-                Icon(
-                  Icons.circle_outlined,
-                  color: Colors.green,
+                SizedBox(
+                  width: 35,
+                  height: 35,
+                  child: Selector<DashboardScreenViewModel, double>(
+                    selector: (_, DashboardScreenViewModel vm) =>
+                        vm.getPercentage(todo),
+                    builder: (_, double percentage, __) =>
+                        CustomCircularProgressIndicator(
+                      percentage: percentage,
+                    ),
+                  ),
                 ),
                 const SizedBox(
                   width: 10,
@@ -183,7 +255,7 @@ class _TodoItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        title,
+                        todo.title,
                         style: AppFonts.body14SB(color: Colors.black),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -192,7 +264,7 @@ class _TodoItem extends StatelessWidget {
                         height: 5,
                       ),
                       Text(
-                        date,
+                        dateFormatter(todo.dueDate),
                         style: AppFonts.body12R(color: Colors.black),
                       ),
                     ],
@@ -201,52 +273,30 @@ class _TodoItem extends StatelessWidget {
               ],
             ),
           ),
-          onPressed: () {},
+          onPressed: () {
+            context.push(TodoDetailRoute().location, extra: todo);
+          },
         ),
         //Badge
-        if (priority == PriorityCategory.HIGH)
+        if (isToday)
           Positioned(
             top: 0,
             right: 0,
             child: Badge(
               label: Text(
-                'URGENT',
+                badgeText,
                 style: AppFonts.body10B(color: Colors.white),
               ),
               offset: const Offset(12, -12),
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              backgroundColor: Colors.red,
-            ),
-          ),
-        if (priority == PriorityCategory.NORMAL)
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Badge(
-              label: Text(
-                'NORMAL',
-                style: AppFonts.body10B(color: Colors.white),
-              ),
-              offset: const Offset(12, -12),
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              backgroundColor: Colors.blue,
-            ),
-          ),
-        if (priority == PriorityCategory.LOW)
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Badge(
-              label: Text(
-                'LOW',
-                style: AppFonts.body10B(color: Colors.white),
-              ),
-              offset: const Offset(12, -12),
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              backgroundColor: Colors.grey,
+              backgroundColor: badgeColor,
             ),
           ),
       ],
     );
   }
+}
+
+String dateFormatter(DateTime date) {
+  return DateFormat('MMM dd, yyyy hh:mm a').format(date);
 }
